@@ -1,0 +1,33 @@
+{
+    "cSpell.words": [
+        "blueprinter",
+        "citext",
+        "kamal",
+        "loverary",
+        "Omakase",
+        "Rodauth",
+        "zoneinfo"
+    ],
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "loverary_development",
+            "database": "loverary_rails_development",
+            "username": "postgres",
+            "password": "1232"
+        },
+        {
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 5432,
+            "driver": "PostgreSQL",
+            "name": "loverary_test",
+            "database": "loverary_rails_test",
+            "username": "postgres",
+            "password": "1232"
+        }
+    ]
+}
