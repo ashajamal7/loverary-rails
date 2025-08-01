@@ -29,6 +29,40 @@ Rails.application.configure do
   # Store uploaded files on the local file system (see config/storage.yml for options).
   config.active_storage.service = :local
 
+  # Enable serving of static files and set cache headers
+  config.public_file_server.enabled = true
+
+  # Configure Active Storage to serve files directly from /storage
+  config.active_storage.resolve_model_to_route = :rails_storage_redirect
+  config.active_storage.service_urls_expire_in = 1.hour
+  
+  # Configure Rack to serve files from the storage directory
+  config.middleware.use Rack::Static, 
+    urls: ['/covers'], 
+    root: Rails.root.join('storage').to_s
+
+  # Set default URL options for the application
+  Rails.application.routes.default_url_options = { host: "localhost", port: 3000, protocol: "http" }
+  config.action_controller.default_url_options = { host: "localhost", port: 3000 }
+  config.action_mailer.default_url_options = { host: "localhost", port: 3000, protocol: "http" }
+  config.action_controller.forgery_protection_origin_check = false
+  
+  # Session and cookie configuration
+  config.session_store :cookie_store, key: '_loverary_session', same_site: :lax, secure: false
+  config.action_dispatch.cookies_same_site_protection = :lax
+  
+  # Enable serving of static files and set cache headers
+  config.public_file_server.enabled = true
+  config.public_file_server.headers = {
+    "Cache-Control" => "public, max-age=3600",
+    "Access-Control-Allow-Origin" => "http://localhost:5173",
+    "Access-Control-Allow-Methods" => "GET, POST, PUT, PATCH, DELETE, OPTIONS, HEAD",
+    "Access-Control-Allow-Headers" => "Origin, Content-Type, Accept, Authorization, X-CSRF-Token",
+    "Access-Control-Allow-Credentials" => "true",
+    "Access-Control-Max-Age" => "600",
+    "Access-Control-Expose-Headers" => "ETag, access-token, expiry, token-type, uid, client"
+  }
+
   # Don't care if the mailer can't send.
   config.action_mailer.raise_delivery_errors = false
 

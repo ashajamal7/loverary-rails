@@ -3,13 +3,18 @@ class AuthorsController < ApplicationController
 
   # GET /authors
   def index
+    Rails.logger.info "Fetching all authors"
     @authors = Author.all
+    Rails.logger.debug "Found #{@authors.size} authors"
 
     render json: @authors
   end
 
   # GET /authors/1
   def show
+    Rails.logger.info "Fetching author with ID: #{params[:id]}"
+    Rails.logger.debug "Author details: #{@author.attributes}"
+    
     render json: @author
   end
 

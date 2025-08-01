@@ -1,4 +1,9 @@
 class SessionsController < ApplicationController
+  skip_before_action :authenticate_user_from_token!, only: [ :login, :current_user, :logout, :csrf_token ]
+  
+  def csrf_token
+    render json: { csrf_token: form_authenticity_token }
+  end
   def login
     user = User.find_by(email: login_params[:email])
     if user && user.authenticate(login_params[:password])
@@ -24,7 +29,7 @@ class SessionsController < ApplicationController
   def current_user
     @current_user ||= User.find_by(id: session[:user_id])
     if @current_user
-      render json: @current_user.as_json(only: [:id, :email, :username]), status: :ok
+      render json: @current_user.as_json(only: [ :id, :email, :username ]), status: :ok
     else
       head :unauthorized
     end

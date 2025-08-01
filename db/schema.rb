@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_08_01_184851) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_02_141754) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -65,7 +65,9 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_184851) do
     t.string "language", null: false
     t.integer "page_count", null: false
     t.decimal "average_rating", precision: 3, scale: 2
+    t.bigint "category_id", null: false
     t.index ["author_id"], name: "index_books_on_author_id"
+    t.index ["category_id"], name: "index_books_on_category_id"
   end
 
   create_table "categories", force: :cascade do |t|
@@ -130,6 +132,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_08_01_184851) do
   add_foreign_key "active_storage_attachments", "active_storage_blobs", column: "blob_id"
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "books", "authors"
+  add_foreign_key "books", "categories"
   add_foreign_key "order_items", "books"
   add_foreign_key "order_items", "orders"
   add_foreign_key "orders", "users"

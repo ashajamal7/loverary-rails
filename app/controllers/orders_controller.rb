@@ -1,51 +1,84 @@
 class OrdersController < ApplicationController
-  before_action :set_order, only: [:show, :update, :destroy]
+  before_action :require_login
+  before_action :set_order, only: [ :show, :update ]
 
-  # GET /orders
+  # GET /users/orders
   def index
-    @orders = Order.all
-
-    render json: @orders
+    @orders = current_user.orders.order(created_at: :desc)
+    render json: {
+      orders: @orders.as_json(include: {
+        order_items: {
+          include: {
+            book: {
+              methods: [ :cover_url ],
+              only: [ :id, :title, :price, :cover_url ]
+            }
+          },
+          only: [ :id, :quantity, :price ]
+        }
+      })
+    }
   end
 
-  # GET /orders/1
+  # GET /users/orders/:id
   def show
-    render json: @order
+    if @order.user_id != current_user.id
+      return render_unauthorized("You are not authorized to view this order")
+    end
+
+    render json: {
+      order: @order.as_json(include: {
+        order_items: {
+          include: {
+            book: {
+              methods: [ :cover_url ],
+              only: [ :id, :title, :price, :cover_url ]
+            }
+          },
+          only: [ :id, :quantity, :price ]
+        }
+      })
+    }
   end
 
-  # POST /orders
+  # POST /users/orders
   def create
-    @order = Order.new(order_params)
-
-    if @order.save
-      render json: @order, status: :created, location: @order
-    else
-      render json: { errors: @order.errors }, status: :unprocessable_entity
-    end
+    # Orders should be created through the checkout process, not directly
+    render json: { error: "Please use the checkout process to create an order" },
+           status: :method_not_allowed
   end
 
-  # PATCH/PUT /orders/1
+  # PATCH/PUT /users/orders/:id
   def update
-    if @order.update(order_params)
-      render json: @order
-    else
-      render json: { errors: @order.errors }, status: :unprocessable_entity
+    if @order.user_id != current_user.id
+      return render_unauthorized("You are not authorized to update this order")
     end
-  end
 
-  # DELETE /orders/1
-  def destroy
-    @order.destroy
+    # Only allow updating status to 'cancelled' by the user
+    if params[:order] && params[:order][:status] == "cancelled"
+      if @order.update(status: "cancelled")
+        render json: { message: "Order cancelled successfully" }
+      else
+        render json: { errors: @order.errors }, status: :unprocessable_entity
+      end
+    else
+      render json: { error: "You can only cancel your own orders" },
+             status: :unprocessable_entity
+    end
   end
 
   private
-    # Use callbacks to share common setup or constraints between actions.
-    def set_order
-      @order = Order.find(params[:id])
-    end
 
-    # Only allow a list of trusted parameters through.
-    def order_params
-      params.require(:order).permit(:user_id, :status, :total_price)
-    end
+  def set_order
+    @order = Order.find_by(id: params[:id])
+    render_not_found("Order not found") unless @order
+  end
+
+  def render_unauthorized(message)
+    render json: { error: message }, status: :unauthorized
+  end
+
+  def render_not_found(message)
+    render json: { error: message }, status: :not_found
+  end
 end

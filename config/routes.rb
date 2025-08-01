@@ -1,24 +1,42 @@
 Rails.application.routes.draw do
-  resources :carts
-  resources :reviews
-  resources :shippings
-  resources :order_items
-  resources :orders
-  resources :books
-  resources :categories
-  resources :authors
+  # Serve static files from /storage
+  get "/storage/*path" => "application#serve_storage", as: :storage
+  get "/covers/*path" => "application#serve_storage", as: :covers
+
+  # Public resources
+  resources :books, only: %i[index show]
+  resources :categories, only: %i[index show]
+  resources :authors, only: %i[index show]
+
+  # Protected resources - require authentication
+  resources :reviews, only: %i[create update destroy]
+  resources :shippings, only: %i[create update show]
+  resources :order_items, only: %i[index show]
+
+  # User-specific orders - scoped to current user
+  scope :users do
+    resources :orders, only: %i[index show create update]
+  end
+
   # Authentication Routes
   post "/users", to: "users#create"
   post "/users/login", to: "sessions#login"
-  delete "/logout", to: "sessions#logout"
+  delete "users/logout", to: "sessions#logout"
   get "/users/current", to: "sessions#current_user"
+  get "/users/csrf-token", to: "sessions#csrf_token"
 
   # Cart Routes
-  post "users/:id/cart/add", to: "carts#add"
-  delete "/users/:id/cart/remove/:book_id", to: "carts#remove"
-  delete "/users/:id/cart/clear", to: "carts#clear"
-  post "/users/:id/cart/checkout", to: "carts#checkout"
-  patch "/users/:id/cart", to: "carts#update"
+  resources :carts, only: [ :create ] do
+    collection do
+      get "/", to: "carts#index", constraints: ->(req) { req.params[:status].present? }
+      get "active", to: "carts#active"
+      post "add", to: "carts#add"
+      delete "remove/:book_id", to: "carts#remove"
+      delete "clear", to: "carts#clear"
+      post "checkout", to: "carts#checkout"
+      patch "/", to: "carts#update"
+    end
+  end
 
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
