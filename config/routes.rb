@@ -10,7 +10,8 @@ Rails.application.routes.draw do
   # Authentication Routes
   post "/users", to: "users#create"
   post "/users/login", to: "sessions#login"
-  post "/users/logout", to: "sessions#logout"
+  delete "/logout", to: "sessions#logout"
+  get "/users/current", to: "sessions#current_user"
 
   # Cart Routes
   post "users/:id/cart/add", to: "carts#add"

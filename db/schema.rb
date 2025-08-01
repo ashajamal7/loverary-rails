@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.0].define(version: 2025_07_31_025124) do
+ActiveRecord::Schema[8.0].define(version: 2025_08_01_184851) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "citext"
   enable_extension "pg_catalog.plpgsql"
@@ -64,6 +64,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_025124) do
     t.integer "edition"
     t.string "language", null: false
     t.integer "page_count", null: false
+    t.decimal "average_rating", precision: 3, scale: 2
     t.index ["author_id"], name: "index_books_on_author_id"
   end
 
@@ -100,6 +101,7 @@ ActiveRecord::Schema[8.0].define(version: 2025_07_31_025124) do
     t.bigint "book_id", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.integer "rating"
     t.index ["book_id"], name: "index_reviews_on_book_id"
     t.index ["user_id"], name: "index_reviews_on_user_id"
   end

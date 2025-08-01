@@ -23,6 +23,11 @@ class SessionsController < ApplicationController
 
   def current_user
     @current_user ||= User.find_by(id: session[:user_id])
+    if @current_user
+      render json: @current_user.as_json(only: [:id, :email, :username]), status: :ok
+    else
+      head :unauthorized
+    end
   end
 
   private

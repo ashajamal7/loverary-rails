@@ -20,7 +20,7 @@ class OrdersController < ApplicationController
     if @order.save
       render json: @order, status: :created, location: @order
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: { errors: @order.errors }, status: :unprocessable_entity
     end
   end
 
@@ -29,7 +29,7 @@ class OrdersController < ApplicationController
     if @order.update(order_params)
       render json: @order
     else
-      render json: @order.errors, status: :unprocessable_entity
+      render json: { errors: @order.errors }, status: :unprocessable_entity
     end
   end
 
