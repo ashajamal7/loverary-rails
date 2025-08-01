@@ -1,14 +1,4 @@
 class SessionsController < ApplicationController
-  def register
-    user = User.new(register_params)
-
-    if user.save
-      render json: UserBlueprint.render(user, root: :user), status: :created
-    else
-      render json: user.errors, status: :unprocessable_entity
-    end
-  end
-
   def login
     user = User.find_by(email: login_params[:email])
     if user && user.authenticate(login_params[:password])
@@ -18,8 +8,7 @@ class SessionsController < ApplicationController
         httponly: true,
         expires: 2.weeks.from_now
       }
-      session[:cart] = {}
-      session[:cart][:user_id] = user.id
+      session[:cart] = { user_id: user.id, cart_items: [] }
       render json: UserBlueprint.render(user, root: :user), status: :ok
     else
       render json: user&.errors, status: :unauthorized
@@ -32,8 +21,11 @@ class SessionsController < ApplicationController
     render json: { message: "logout successful" }, status: :ok
   end
 
-  private
+  def current_user
+    @current_user ||= User.find_by(id: session[:user_id])
+  end
 
+  private
   def register_params
     params.require(:user).permit(:username, :email, :password)
   end

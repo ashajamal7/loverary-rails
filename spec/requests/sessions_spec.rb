@@ -7,7 +7,6 @@ RSpec.describe "Sessions", type: :request do
     it 'registers a user properly when given valid credentials' do
       post '/users', params: { user: user_params }
       parsed = JSON.parse(response.body)
-      puts "parsed: #{parsed}"
 
       expect(response).to have_http_status(:created)
 
@@ -26,7 +25,7 @@ RSpec.describe "Sessions", type: :request do
       expect(parsed['user']['username']).to eq(user.username)
       expect(parsed['user']['email']).to eq(user.email)
       expect(session[:user_id]).to eq(user.id)
-      expect(session[:cart]).to eq({ user_id: user.id })
+      expect(session[:cart]).to eq({ user_id: user.id, cart_items: [] })
     end
   end
 end
